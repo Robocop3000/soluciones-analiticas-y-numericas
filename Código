@@ -1,0 +1,71 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# --- 1. Definición del Problema ---
+# EDO: dy/dt = f(t, y) = 2y
+def f(t, y):
+    """Define la función f(t, y) de la EDO."""
+    return 2 * y
+
+# Condición inicial
+y0 = 1
+t_inicio = 0
+t_fin = 1
+h = 0.2 # Tamaño del paso
+
+# --- 2. Método de Euler ---
+
+def metodo_euler(f, y0, t_inicio, t_fin, h):
+    """Aplica el método de Euler para aproximar la solución."""
+    
+    # Crear el vector de tiempo (t_0, t_0+h, t_0+2h, ..., t_fin)
+    t_puntos = np.arange(t_inicio, t_fin + h, h)
+    
+    # Inicializar el vector de soluciones y
+    y_puntos = np.zeros(len(t_puntos))
+    y_puntos[0] = y0
+    
+    # Bucle de iteración de Euler
+    for i in range(len(t_puntos) - 1):
+        t_n = t_puntos[i]
+        y_n = y_puntos[i]
+        
+        # Fórmula de Euler: y_{n+1} = y_n + h * f(t_n, y_n)
+        y_n1 = y_n + h * f(t_n, y_n)
+        y_puntos[i+1] = y_n1
+        
+    return t_puntos, y_puntos
+
+t_euler, y_euler = metodo_euler(f, y0, t_inicio, t_fin, h)
+
+# --- 3. Solución Analítica ---
+
+def solucion_exacta(t):
+    """Calcula la solución exacta y(t) = e^(2t)."""
+    return np.exp(2 * t)
+
+# Calcular los valores exactos en los mismos puntos de tiempo
+y_exacta = solucion_exacta(t_euler)
+
+# --- 4. Reporte y Comparación ---
+
+print("## 📊 Comparación de Resultados (h = 0.2)")
+print("-" * 40)
+print(f"{'t':<5} | {'y_Euler':<10} | {'y_Exacta':<10} | {'Error Abs.':<10}")
+print("-" * 40)
+for t, y_e, y_a in zip(t_euler, y_euler, y_exacta):
+    error_abs = np.abs(y_a - y_e)
+    print(f"{t:.1f} | {y_e:10.4f} | {y_a:10.4f} | {error_abs:10.4f}")
+print("-" * 40)
+
+# --- 5. Gráfico de Visualización ---
+plt.figure(figsize=(10, 6))
+plt.plot(t_euler, y_exacta, 'b-', label='Solución Exacta $y(t) = e^{2t}$', linewidth=2)
+plt.plot(t_euler, y_euler, 'ro--', label='Aproximación Euler ($h=0.2$)', markerfacecolor='red')
+
+plt.title('Comparación: Solución Exacta vs. Método de Euler')
+plt.xlabel('t')
+plt.ylabel('y(t)')
+plt.grid(True, linestyle='--', alpha=0.7)
+plt.legend()
+plt.show()
